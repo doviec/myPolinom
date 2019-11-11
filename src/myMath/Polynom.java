@@ -146,7 +146,6 @@ public class Polynom implements Polynom_able{
 
 	@Override
 	public double root(double x0, double x1, double eps) {  //מה שמאפס-שורש
-
 		return 0;
 	}
 
