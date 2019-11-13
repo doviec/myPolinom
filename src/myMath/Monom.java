@@ -100,8 +100,7 @@ public class Monom implements function {
 
 		if (m.get_power() != this.get_power()) {
 
-			// throw new RuntimeException("monom's exponents arnet equal");
-			System.out.println("cant add these monom's");
+			throw new RuntimeException("monom's exponents arn't equal");
 		} else {
 			set_coefficient(this.get_coefficient() + m.get_coefficient());
 		}
@@ -112,8 +111,7 @@ public class Monom implements function {
 
 		if (m.get_power() != this.get_power()) {
 
-			// throw new RuntimeException("monom's exponents arnet equal");
-			System.out.println("cant sub these monom's");
+			throw new RuntimeException("monom's exponents arnet equal");
 		} else {
 			set_coefficient(this.get_coefficient() - m.get_coefficient());
 		}
@@ -125,9 +123,9 @@ public class Monom implements function {
 		set_power(this.get_power() + d.get_power());
 		set_coefficient(this.get_coefficient() * d.get_coefficient());
 	}
-	
+
 	public boolean equals (Monom m) {
-		
+
 		return (this.get_power() == m.get_power() && this.get_coefficient() == m.get_coefficient());
 	}
 

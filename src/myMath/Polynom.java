@@ -1,3 +1,4 @@
+
 package myMath;
 
 import java.util.ArrayList;
@@ -53,10 +54,15 @@ public class Polynom implements Polynom_able{
 		Iterator<Monom> iterator = iteretor();
 		while (iterator.hasNext()) {
 
-			Monom m = iterator.next();
-			ans += m.f(x);
+			Monom monom = iterator.next();
+			ans += monom.f(x);
 		}
 		return ans;
+	}
+	public void deleteMonomIfZero(Monom m1) {
+		if (m1.get_coefficient()==0) {
+			monomsMap.remove(m1.get_power());
+		}
 	}
 
 	@Override
@@ -76,19 +82,25 @@ public class Polynom implements Polynom_able{
 
 		if (monomsMap.get(m1.get_power()) == null) {
 			monomsMap.put((m1.get_power()), m1);
+			
 		}else {
 			Monom m2 = monomsMap.get(m1.get_power());
-			m2.add(m1);                                         //m2 gets object from list by reference thats why when we change m2 we also change the original-m1 (if we did new it wouldnt work0
+			m2.add(m1);         //m2 gets object from list by reference thats why when we change m2 we also change the original-m1 (if we did new it wouldnt work0
+			deleteMonomIfZero(monomsMap.get(m2.get_power()));
 		}
 
 	}
 	public void subtract(Monom m1) {
 
-		if (monomsMap.get(m1.get_power()) == null) {
+		if (monomsMap.get(m1.get_power()) == null) {      //need to change coeffient to minus!!!!!!!!
+			m1.multipy(Monom.MINUS1);
 			monomsMap.put((m1.get_power()), m1);
+			
+
 		}else {
 			Monom m2 = monomsMap.get(m1.get_power());
-			m2.subtract(m1);                                       
+			m2.subtract(m1); 
+			deleteMonomIfZero(monomsMap.get(m2.get_power()));
 		}
 	}
 
@@ -140,13 +152,34 @@ public class Polynom implements Polynom_able{
 
 	@Override
 	public boolean isZero() {
-		
+
 		return (monomsMap.size() == 1 && monomsMap.get(0) != null && monomsMap.get(0).isZero());
 	}
 
 	@Override
-	public double root(double x0, double x1, double eps) {  //מה שמאפס-שורש
-		return 0;
+	public double root(double x0, double x1, double eps) { 
+
+		if (this.f(x0) * this.f(x1) > 0) {
+			throw new RuntimeException("The values x0 and x1 arn't correct");
+		}
+
+		if (this.f(x0)*this.f(x1)==0) {
+			if (this.f(x0)==0) return x0;
+			else return x1;
+		}
+		double smallThenEps=((x0+x1)/2);
+		while (Math.abs(this.f(smallThenEps))>eps) {
+			if (this.f(smallThenEps)*this.f(x0)<0) {
+				x1=smallThenEps;
+			}
+			else {
+				x0=smallThenEps;
+			}
+			smallThenEps=((x0+x1)/2);
+		}
+
+
+		return smallThenEps;
 	}
 
 	@Override
@@ -161,15 +194,30 @@ public class Polynom implements Polynom_able{
 	}
 
 	@Override
-	public Polynom_able derivative() {
-		// TODO Auto-generated method stub
-		return null;
+	public Polynom_able derivative() {                        //has to be checked
+		Polynom_able polynom_able = new Polynom();
+		Iterator<Monom> iterator = iteretor();
+		while (iterator.hasNext()) {
+			Monom monom = iterator.next();
+			monom.derivative();
+			polynom_able.add(monom);
+		}
+		return polynom_able;
 	}
 
 	@Override
 	public double area(double x0, double x1, double eps) {
-		// TODO Auto-generated method stub
-		return 0;
+
+		if (x0 == x1) return 0;
+		double temp, sumArea = 0;
+		temp = Math.min(x1, x0)+eps;
+
+		while (temp <= Math.max(x0, x1)) {
+			sumArea+=(this.f(temp))*eps;
+			temp+=eps;
+		}
+
+		return sumArea;
 	}
 
 	@Override
@@ -205,7 +253,7 @@ public class Polynom implements Polynom_able{
 		return list;
 	}
 	@Override
-	public void multiply(Monom m1) {         //needs a check
+	public void multiply(Monom m1) {        
 
 		Polynom p = new Polynom();
 
@@ -237,6 +285,7 @@ public class Polynom implements Polynom_able{
 			polynomStr = sb.toString();
 		}
 		return polynomStr;
+
 	}
 
 
