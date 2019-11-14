@@ -34,17 +34,17 @@ public class Polynom implements Polynom_able{
 	 * @param s: is a string represents a Polynom
 	 */
 	public Polynom(String s) {
-		this();     //בנאי דיפולטיבי
+		this();     
 		int start = 0;
 		for (int i = 0; i < s.length(); i++) {
 			if(s.charAt(i) == '+' || s.charAt(i) == '-'){
-				Monom m = new Monom(s.substring(start, i));          //לבדוק מה קורה אם מתחיל בפלוס או מינוס בעיה
-				monomsMap.put(m.get_power(), m);         //adds to hashmap where hash key is monom power for futre help
+				Monom monom = new Monom(s.substring(start, i));  
+				add(monom);
 				start = i;
 			}
 		}if (start != s.length()) {
-			Monom m = new Monom (s.substring(start));
-			monomsMap.put(m.get_power(), m);
+			Monom monom = new Monom (s.substring(start));
+			add(monom);
 		}
 	}
 	@Override
@@ -60,7 +60,8 @@ public class Polynom implements Polynom_able{
 		return ans;
 	}
 	public void deleteMonomIfZero(Monom m1) {
-		if (m1.get_coefficient()==0) {
+		
+		if (m1.get_coefficient() == 0) {
 			monomsMap.remove(m1.get_power());
 		}
 	}
@@ -80,28 +81,25 @@ public class Polynom implements Polynom_able{
 	@Override
 	public void add(Monom m1) {
 
-		if (monomsMap.get(m1.get_power()) == null) {
-			monomsMap.put((m1.get_power()), m1);
-			
-		}else {
-			Monom m2 = monomsMap.get(m1.get_power());
-			m2.add(m1);         //m2 gets object from list by reference thats why when we change m2 we also change the original-m1 (if we did new it wouldnt work0
-			deleteMonomIfZero(monomsMap.get(m2.get_power()));
-		}
+		Monom monom = monomsMap.get(m1.get_power());
+		if (monom == null) {
+			monomsMap.put(m1.get_power(), m1);
 
+		}else {
+			if (m1.get_power() == monom.get_power()) {
+				if (m1.get_coefficient() + monom.get_coefficient() == 0)
+				{
+					monomsMap.remove(monom.get_power());
+				} else {
+					monom.add(m1); 
+				}
+			}
+		}
 	}
 	public void subtract(Monom m1) {
 
-		if (monomsMap.get(m1.get_power()) == null) {      //need to change coeffient to minus!!!!!!!!
-			m1.multipy(Monom.MINUS1);
-			monomsMap.put((m1.get_power()), m1);
-			
-
-		}else {
-			Monom m2 = monomsMap.get(m1.get_power());
-			m2.subtract(m1); 
-			deleteMonomIfZero(monomsMap.get(m2.get_power()));
-		}
+		Monom negative = new Monom(-1 * m1.get_coefficient(), m1.get_power());
+		add(negative);
 	}
 
 	@Override
@@ -113,24 +111,23 @@ public class Polynom implements Polynom_able{
 		}
 	}	
 
-	@Override
+	@Override 
 	public void multiply(Polynom_able p1) {
-
 		Polynom p2 = new Polynom();
-		Iterator<Monom>iterator = iteretor();
+		Iterator<Monom>iterator = p1.iteretor();
 		while (iterator.hasNext()) {
-
 			Monom m = iterator.next();
-			Polynom_able temp = this.copy();
-			temp.multiply(m);
-			p2.add(temp);
+
+			Polynom_able tempPol = this.copy();
+			tempPol.multiply(m);
+			p2.add(tempPol);
 		}
 		monomsMap = p2.monomsMap;
 	}
 
 	@Override
 	public boolean equals(Polynom_able p1) {
-		Iterator<Monom> iterator = iteretor();
+		Iterator<Monom> iterator = p1.iteretor();
 		int count = 0;
 		while (iterator.hasNext()) {
 			Monom m = iterator.next();
@@ -153,20 +150,24 @@ public class Polynom implements Polynom_able{
 	@Override
 	public boolean isZero() {
 
-		return (monomsMap.size() == 1 && monomsMap.get(0) != null && monomsMap.get(0).isZero());
+		return (monomsMap.size() == 0);
 	}
 
 	@Override
 	public double root(double x0, double x1, double eps) { 
 
+		if (this.f(x0) * this.f(x1) == 0) {
+			if (this.f(x0) == 0) return x0;
+			else return x1;
+		}
+		if (this.isZero()) {
+			return x0;
+		}
+		
 		if (this.f(x0) * this.f(x1) > 0) {
 			throw new RuntimeException("The values x0 and x1 arn't correct");
 		}
 
-		if (this.f(x0)*this.f(x1)==0) {
-			if (this.f(x0)==0) return x0;
-			else return x1;
-		}
 		double smallThenEps=((x0+x1)/2);
 		while (Math.abs(this.f(smallThenEps))>eps) {
 			if (this.f(smallThenEps)*this.f(x0)<0) {
@@ -223,9 +224,9 @@ public class Polynom implements Polynom_able{
 	@Override
 	public Iterator<Monom> iteretor() {
 
-		ArrayList<Monom>arrayList = convertMapToList();
-
 		return new Iterator<Monom>() {
+
+			ArrayList<Monom>arrayList = convertMapToList();
 			int index = 0;	
 			@Override
 			public Monom next() {
@@ -248,23 +249,20 @@ public class Polynom implements Polynom_able{
 	private ArrayList<Monom> convertMapToList() {
 		ArrayList<Monom> list = new ArrayList<Monom>();
 		for (Map.Entry<Integer, Monom> entry : monomsMap.entrySet()) {
-			list.add(entry.getValue());
+			list.add(new Monom(entry.getValue()));
 		}
 		return list;
 	}
 	@Override
-	public void multiply(Monom m1) {        
-
+		public void multiply(Monom m1) {        
 		Polynom p = new Polynom();
-
-		for(int i=0;i<=monomsMap.size();i++) {
-			if (monomsMap.get(i)!=null) {
-				Monom m2 = monomsMap.get(i);
-				m2.multipy(m1);
-				p.add(m2);
-			}
+		Iterator<Monom> iterator = iteretor();
+		while (iterator.hasNext()){
+			Monom monom = iterator.next();
+			monom.multipy(m1);
+			p.add(monom);
 		}
-		this.monomsMap=p.monomsMap;
+		this.monomsMap = p.monomsMap;
 	}
 
 	@Override

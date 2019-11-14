@@ -92,7 +92,7 @@ public class Monom implements function {
 				}
 			}
 		} else {
-			System.out.println("The String " + s + " is not a Monom");
+			throw new RuntimeException("The String " + s + " is not a Monom");
 		}
 	}
 
@@ -100,7 +100,7 @@ public class Monom implements function {
 
 		if (m.get_power() != this.get_power()) {
 
-			throw new RuntimeException("monom's exponents arn't equal");
+			throw new RuntimeException("monom's exponents arn't equal therefor we can't add them to one single monom");
 		} else {
 			set_coefficient(this.get_coefficient() + m.get_coefficient());
 		}
@@ -111,7 +111,7 @@ public class Monom implements function {
 
 		if (m.get_power() != this.get_power()) {
 
-			throw new RuntimeException("monom's exponents arnet equal");
+			throw new RuntimeException("monom's exponents arn't equal therefor we can't subtract them to one single monom");
 		} else {
 			set_coefficient(this.get_coefficient() - m.get_coefficient());
 		}
