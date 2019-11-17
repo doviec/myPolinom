@@ -9,15 +9,7 @@ import myMath.Monom;
 
 class MonomTest {
 
-	@Test
-	void testMonomDoubleInt() {
-		fail("Not yet implemented");
-	}
 
-	@Test
-	void testMonomMonom() {
-		fail("Not yet implemented");
-	}
 
 	@Test
 	void testDerivative() {
@@ -42,15 +34,9 @@ class MonomTest {
 
 	}
 
-	@Test
-	void testF() {
-		fail("Not yet implemented");
-	}
 
-	@Test
-	void testIsZero() {
-		fail("Not yet implemented");
-	}
+
+
 
 	@Test
 	void testMonomString() {

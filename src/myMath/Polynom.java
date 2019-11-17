@@ -28,44 +28,62 @@ public class Polynom implements Polynom_able{
 	public Polynom() {
 		monomsMap = new HashMap<>();
 	}
-	/**
-	 * init a Polynom from a String such as:
-	 *  {"x", "3+1.4X^3-34x", "(2x^2-4)*(-1.2x-7.1)", "(3-3.4x+1)*((3.1x-1.2)-(3X^2-3.1))"};
+	/** init a Polynom from a String such as:
+	 *  {"x", "3+1.4X^3-34x", "3-3.4x+13.1x-1.2-3X^2-3.1"};
 	 * @param s: is a string represents a Polynom
 	 */
+
 	public Polynom(String s) {
 		this();     
 		int start = 0;
-		for (int i = 0; i < s.length(); i++) {
-			if(s.charAt(i) == '+' || s.charAt(i) == '-'){
-				Monom monom = new Monom(s.substring(start, i));  
+		String trimmedPoli = s.replaceAll("\\s","");
+
+		int index;
+		if (!trimmedPoli.isEmpty() && (trimmedPoli.charAt(0) == '+' || trimmedPoli.charAt(0) == '-')) {
+			index = 1;
+		} else {
+			index = 0;
+		}
+
+		for (; index < trimmedPoli.length(); index++) {
+			if(trimmedPoli.charAt(index) == '+' || trimmedPoli.charAt(index) == '-'){
+				Monom monom = new Monom(trimmedPoli.substring(start, index));  
 				add(monom);
-				start = i;
+				start = index;
 			}
-		}if (start != s.length()) {
-			Monom monom = new Monom (s.substring(start));
+		}if (start != trimmedPoli.length()) {
+			Monom monom = new Monom (trimmedPoli.substring(start));
 			add(monom);
 		}
 	}
+	/**
+	 * with the help of f function in monom class this method returns the value of the Polynom by a given x.
+	 */
 	@Override
 	public double f(double x) {
 
-		int ans = 0;
+		double valueF = 0;
 		Iterator<Monom> iterator = iteretor();
 		while (iterator.hasNext()) {
 
 			Monom monom = iterator.next();
-			ans += monom.f(x);
+			valueF += monom.f(x);
 		}
-		return ans;
+		return valueF;
 	}
+	/**
+	 * deletes a monom if its coefficient is zero
+	 * @param m1
+	 */
 	public void deleteMonomIfZero(Monom m1) {
-		
+
 		if (m1.get_coefficient() == 0) {
 			monomsMap.remove(m1.get_power());
 		}
 	}
-
+/**
+ * adds to our Polynom a given polynom_able
+ */
 	@Override
 	public void add(Polynom_able p1) {
 		Iterator<Monom> iterator = p1.iteretor();
@@ -76,32 +94,39 @@ public class Polynom implements Polynom_able{
 	}
 
 	/**
-	 * 
+	 * adds a monom to our polynom & deletes it if its zero
 	 */
 	@Override
 	public void add(Monom m1) {
+		if (!m1.isZero()) {
+			Monom monom = monomsMap.get(m1.get_power());
+			if (monom == null) {
+				monomsMap.put(m1.get_power(), m1);
 
-		Monom monom = monomsMap.get(m1.get_power());
-		if (monom == null) {
-			monomsMap.put(m1.get_power(), m1);
-
-		}else {
-			if (m1.get_power() == monom.get_power()) {
-				if (m1.get_coefficient() + monom.get_coefficient() == 0)
-				{
-					monomsMap.remove(monom.get_power());
-				} else {
-					monom.add(m1); 
+			}else {
+				if (m1.get_power() == monom.get_power()) {
+					if (m1.get_coefficient() + monom.get_coefficient() == 0)
+					{
+						monomsMap.remove(monom.get_power());
+					} else {
+						monom.add(m1); 
+					}
 				}
 			}
 		}
 	}
+	/**
+	 * subtracts a monom from the polynom & deletes it if its zero.
+	 * @param m1
+	 */
 	public void subtract(Monom m1) {
 
 		Monom negative = new Monom(-1 * m1.get_coefficient(), m1.get_power());
 		add(negative);
 	}
-
+/**
+ * subtracts a polynom from the polynom
+ */
 	@Override
 	public void substract(Polynom_able p1) {              
 		Iterator<Monom> iterator = p1.iteretor();
@@ -110,7 +135,9 @@ public class Polynom implements Polynom_able{
 			subtract(m);
 		}
 	}	
-
+/**
+ * adds a polynom to a polynom.
+ */
 	@Override 
 	public void multiply(Polynom_able p1) {
 		Polynom p2 = new Polynom();
@@ -124,7 +151,9 @@ public class Polynom implements Polynom_able{
 		}
 		monomsMap = p2.monomsMap;
 	}
-
+/**
+ * checks if two polynoms are equal.
+ */
 	@Override
 	public boolean equals(Polynom_able p1) {
 		Iterator<Monom> iterator = p1.iteretor();
@@ -135,7 +164,7 @@ public class Polynom implements Polynom_able{
 			if (monomsMap.get(m.get_power()) == null) {             
 				return false;
 			}else {
-				if (!m.equals(monomsMap.get(m.get_power()))) {          //checks the whole monom
+				if (!m.equals(monomsMap.get(m.get_power()))) {          
 					return false;
 				}
 			}
@@ -146,24 +175,35 @@ public class Polynom implements Polynom_able{
 
 		return true;
 	}
-
+/**
+ * checks if the polynom is zero
+ */
 	@Override
 	public boolean isZero() {
 
 		return (monomsMap.size() == 0);
 	}
-
+/**
+ * gets two double values and epsilon and returns if there is a value between the two that gives us zero if we send it to f(x) and is smaller then epsilon.
+ */
 	@Override
 	public double root(double x0, double x1, double eps) { 
 
-		if (this.f(x0) * this.f(x1) == 0) {
-			if (this.f(x0) == 0) return x0;
-			else return x1;
+			if (this.f(x0) * this.f(x1) == 0) {
+			if (this.f(x0) == 0) {
+				return x0;
+			}
+			else {
+				return x1;
+			}
 		}
 		if (this.isZero()) {
 			return x0;
 		}
-		
+		if (f(0) == 0) {
+			return 0;
+		}
+
 		if (this.f(x0) * this.f(x1) > 0) {
 			throw new RuntimeException("The values x0 and x1 arn't correct");
 		}
@@ -179,10 +219,11 @@ public class Polynom implements Polynom_able{
 			smallThenEps=((x0+x1)/2);
 		}
 
-
 		return smallThenEps;
 	}
-
+/**
+ * this method returns a polynom_able which is a copy of our polynom.
+ */
 	@Override
 	public Polynom_able copy() {
 		Polynom_able polynom_able = new Polynom();
@@ -193,34 +234,42 @@ public class Polynom implements Polynom_able{
 		}
 		return polynom_able;
 	}
-
+/**
+ * returns the polynom with its derivative values.
+ */
 	@Override
-	public Polynom_able derivative() {                        //has to be checked
+	public Polynom_able derivative() {                      
 		Polynom_able polynom_able = new Polynom();
-		Iterator<Monom> iterator = iteretor();
+		Iterator<Monom> iterator = this.iteretor();
 		while (iterator.hasNext()) {
 			Monom monom = iterator.next();
-			monom.derivative();
+			monom = monom.derivative();
 			polynom_able.add(monom);
 		}
 		return polynom_able;
 	}
-
+/**
+ * gets two double values abd epsilon and returns the are of the function between and the x axis.
+ */
 	@Override
 	public double area(double x0, double x1, double eps) {
 
-		if (x0 == x1) return 0;
+		if (x0 >= x1) {
+			return 0;
+		}
 		double temp, sumArea = 0;
-		temp = Math.min(x1, x0)+eps;
+		temp = x0+eps;
 
-		while (temp <= Math.max(x0, x1)) {
+		while (temp <=  x1) {
 			sumArea+=(this.f(temp))*eps;
 			temp+=eps;
 		}
 
 		return sumArea;
 	}
-
+/**
+ * ()-with this method we may iterate through  hashmap or polynom etc. and get its values (monom etc.).
+ */
 	@Override
 	public Iterator<Monom> iteretor() {
 
@@ -243,9 +292,10 @@ public class Polynom implements Polynom_able{
 		};
 
 	}
-
-
-
+/**
+ * this method is used to copy a hashmap to an arraylist. Used for the iterator function to prevent us from trying to acsses  data which does not exist (null).
+ * @return
+ */
 	private ArrayList<Monom> convertMapToList() {
 		ArrayList<Monom> list = new ArrayList<Monom>();
 		for (Map.Entry<Integer, Monom> entry : monomsMap.entrySet()) {
@@ -253,8 +303,11 @@ public class Polynom implements Polynom_able{
 		}
 		return list;
 	}
+	/**
+	 * this method multiplies our Polynom by one monom.
+	 */
 	@Override
-		public void multiply(Monom m1) {        
+	public void multiply(Monom m1) {        
 		Polynom p = new Polynom();
 		Iterator<Monom> iterator = iteretor();
 		while (iterator.hasNext()){
@@ -264,7 +317,9 @@ public class Polynom implements Polynom_able{
 		}
 		this.monomsMap = p.monomsMap;
 	}
-
+/**
+ * this method prints our Polynom
+ */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -285,9 +340,4 @@ public class Polynom implements Polynom_able{
 		return polynomStr;
 
 	}
-
-
-
-
-
 }

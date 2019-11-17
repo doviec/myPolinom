@@ -51,29 +51,39 @@ public class Monom implements function {
 		}
 		return new Monom(this.get_coefficient() * this.get_power(), this.get_power() - 1);
 	}
-
+	/**
+	 * this method returns the value of the monom by a given x(double)-f(x).
+	 * @return
+	 */
 	public double f(double x) {
 		double ans = 0;
 		double p = this.get_power();
 		ans = this.get_coefficient() * Math.pow(x, p);
 		return ans;
 	}
-
+	/**
+	 * this method returns true if the coefficient is zero.
+	 * @return
+	 */
 	public boolean isZero() {
 		return this.get_coefficient() == 0;
 	}
 
 	// ***************** add your code below **********************
+	/**
+	 * by a given string this method checks if its valid and adds to monom’s parameters its values.
+	 * @param s
+	 */
 	public Monom(String s) {
 
 		if (checkString(s)) {
 
-			if (isZero(s)) { // checks if the string equals to zero
+			if (isZero(s)) { 
 				set_coefficient(0);
 				set_power(0);
 			} else {
 				int x_index = s.indexOf("x");
-				if (x_index > -1) { // checks if has x in the string
+				if (x_index > -1) { 
 					if (x_index == 0) {
 						set_coefficient(1);
 					} else {
@@ -95,7 +105,10 @@ public class Monom implements function {
 			throw new RuntimeException("The String " + s + " is not a Monom");
 		}
 	}
-
+	/**
+	 * this method adds two monoms to one single monom only if they hold the same power.
+	 * @param m
+	 */
 	public void add(Monom m) {
 
 		if (m.get_power() != this.get_power()) {
@@ -106,7 +119,10 @@ public class Monom implements function {
 		}
 
 	}
-
+	/**
+	 * this method subtracts two monoms to one single monom only if they hold the same power
+	 * @param m
+	 */
 	public void subtract(Monom m) {
 
 		if (m.get_power() != this.get_power()) {
@@ -117,48 +133,67 @@ public class Monom implements function {
 		}
 
 	}
-
+	/**
+	 * this method multiplies two monoms to one single monom.
+	 * @param d
+	 */
 	public void multipy(Monom d) {
 
 		set_power(this.get_power() + d.get_power());
 		set_coefficient(this.get_coefficient() * d.get_coefficient());
 	}
-
+	/**
+	 * this method returns true if two monoms are equivalent
+	 * @param m
+	 * @return
+	 */
 	public boolean equals (Monom m) {
 
-		return (this.get_power() == m.get_power() && this.get_coefficient() == m.get_coefficient());
+		double eps = m.get_coefficient()-this.get_coefficient();
+		if(Math.abs(eps) <= EPSILON && this.get_power() == m.get_power())
+		{
+			return true;
+		}
+		else {
+			return false;
+		}
+	
 	}
-
+	/**
+	 * this method prints the monom
+	 */
 	public String toString() {
-		if (get_power() == 0) { // if theres no power (no x)
-			return "monom: " + get_coefficient();
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.get_coefficient());
+		if (this.get_power() > 0){
+			sb.append("x^").append(this.get_power());
 		}
-		if (get_coefficient() == 0 && get_power() == 0) {
-			return "monom: 0";
-		}
-		return "monom: " + get_coefficient() + "x^" + get_power();
+		return sb.toString();
 	}
-	// you may (always) add other methods.
 
 	// ****************** Private Methods and Data *****************
-
+	/**
+	 * this method checks if our string represents a valid monom (for example, may have spaces but not characters that aren’t mathematics).
+	 * @param cs
+	 * @return
+	 */
 	private boolean checkString(String cs) {
 
 		if (cs.isBlank() || cs.equals(null)) {
 			return false;
-		} // checks if the string is blank or equal to null
+		} 
 		cs = cs.toLowerCase().trim().replaceAll(" ", "");
-		String[] arrS = cs.split("x"); // splits the string wherever theres a x
+		String[] arrS = cs.split("x"); 
 		if (arrS.length > 2) {
 			return false;
-		} // checks if there was more then two x
+		} 
 		if (arrS.length == 0 && cs.length() > 1) {
 			return false;
-		} // incase the string was only made of x's (more then one)
+		} 
 		if (arrS.length == 0 && cs.length() == 1) {
 			return true;
-		} // the string is x;
-		if(!arrS[0].isEmpty()) {       //in monom מצורה x^a
+		} 
+		if(!arrS[0].isEmpty()) {   
 			try {
 				parse(arrS[0]);
 			} catch (Exception e) {
@@ -168,8 +203,8 @@ public class Monom implements function {
 		if (arrS.length == 2) {
 			if (arrS[1].length() == 1 || arrS[1].charAt(0) != '^' && arrS[1].charAt(1) == '-') {
 				return false;
-			} // checks if the power has only one char or more then one
-			else { // ....but dosent begin with ^
+			} 
+			else { 
 				try {
 					Integer.parseInt(arrS[1].substring(1));
 				} catch (Exception e) {
@@ -181,8 +216,12 @@ public class Monom implements function {
 
 		return true;
 	}
-
-	private boolean isZero(String s) { // function that checks if the string is only with zero charachters
+	/**
+	 * this method checks if the string is equivalent to the monom zero
+	 * @param s
+	 * @return
+	 */
+	private boolean isZero(String s) {
 
 		for (int i = 0; i < s.length(); i++) {
 			if (s.charAt(i) != '0') {
@@ -191,9 +230,12 @@ public class Monom implements function {
 		}
 		return true;
 	}
-
-	private double parse(String expression) { // function thats returns a number with its negitive/positive sign
-
+	/**
+	 * function that returns its string numeric value with its negative/positive symbol.
+	 * @param expression
+	 * @return
+	 */
+	private double parse(String expression) { 
 		if (expression.indexOf('-') == 0) {
 			if (expression.length() == 1) {
 				return -1;
