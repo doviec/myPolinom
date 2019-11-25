@@ -2,25 +2,8 @@ package myMath;
 
 public class PolynomTest {
 	public static void main(String[] args) {
-
-		
-	
-		String s1 ="2x + 3";
-		String s2 ="x^4 + 3x+3";
-		String s3 ="3x^2 -2x^4 + 3";
-		
-		Polynom p1 = new Polynom(s1);
-		Polynom p2 = new Polynom(s2);
-		Polynom p3 = new Polynom(s3);
-		
-		
-		
-		
-		
-		
-				test1();
+		test1();
 		test2();
-		
 	}
 	public static void test1() {
 		Polynom p1 = new Polynom();
@@ -51,7 +34,6 @@ public class PolynomTest {
 		p1.multiply(p2);
 		System.out.println("(p1+p2)*p2: "+p1);
 		String s1 = p1.toString();
-		//Polynom_able pp1 = Polynom.parse(s1);
-	//	System.out.println("from string: "+pp1);
+	
 	}
 }
